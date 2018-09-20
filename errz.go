@@ -2,10 +2,15 @@ package errz
 
 import (
 	"fmt"
+	"runtime"
 )
+
+// MaxDepth is max depth of stack trace.
+var MaxDepth = 32
 
 type base struct {
 	msg string
+	pcs []uintptr
 	st  *StackTrace
 }
 
@@ -14,6 +19,17 @@ func (b *base) Error() string {
 }
 
 func (b *base) Trace() *StackTrace {
+	if b.st != nil {
+		return b.st
+	}
+
+	b.st = &StackTrace{}
+	cs := callers(b.pcs)
+	if len(cs) > MaxDepth {
+		b.st.More = true
+		cs = cs[0:MaxDepth]
+	}
+	b.st.Callers = cs
 	return b.st
 }
 
@@ -22,7 +38,7 @@ func (b *base) Trace() *StackTrace {
 func New(msg string) error {
 	return &base{
 		msg: msg,
-		st:  callers(),
+		pcs: pcs(),
 	}
 }
 
@@ -31,6 +47,12 @@ func New(msg string) error {
 func Errorf(format string, a ...interface{}) error {
 	return &base{
 		msg: fmt.Sprintf(format, a...),
-		st:  callers(),
+		pcs: pcs(),
 	}
+}
+
+func pcs() []uintptr {
+	v := make([]uintptr, MaxDepth+1)
+	n := runtime.Callers(3, v)
+	return v[0:n]
 }

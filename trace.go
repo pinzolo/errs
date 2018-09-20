@@ -5,12 +5,6 @@ import (
 	"strings"
 )
 
-// MaxDepth is max depth of stack trace.
-var MaxDepth = 32
-
-// drop entrance and constructor funcs.
-const firstDepth = 2
-
 // Caller is line of stack trace.
 type Caller struct {
 	PC   uintptr
@@ -42,37 +36,30 @@ func Trace(err error) *StackTrace {
 	return nil
 }
 
-func callers() *StackTrace {
-	i := firstDepth
-	st := StackTrace{
-		Callers: make([]*Caller, 0),
-	}
-	for {
-		pc, file, line, ok := runtime.Caller(i)
-		if !ok {
-			break
+func callers(pcs []uintptr) []*Caller {
+	cs := make([]*Caller, len(pcs))
+	for i, pc := range pcs {
+		fn := runtime.FuncForPC(pc)
+		var name string
+		if fn == nil {
+			name = "unknown"
+		} else {
+			name = extractFuncName(fn.Name())
 		}
-		if i == MaxDepth+firstDepth {
-			st.More = true
-			break
-		}
-		fn := funcName(pc)
-		c := &Caller{
+		file, line := fn.FileLine(pc)
+		cs[i] = &Caller{
 			PC:   pc,
 			File: file,
 			Line: line,
-			Func: fn,
+			Func: name,
 		}
-		st.Callers = append(st.Callers, c)
-		i++
 	}
-	return &st
+	return cs
 }
 
-func funcName(pc uintptr) string {
-	name := runtime.FuncForPC(pc).Name()
-	i := strings.LastIndex(name, "/")
-	name = name[i+1:]
+func extractFuncName(path string) string {
+	i := strings.LastIndex(path, "/")
+	name := path[i+1:]
 	i = strings.Index(name, ".")
 	return name[i+1:]
 }

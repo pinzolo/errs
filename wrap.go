@@ -26,7 +26,7 @@ func Wrap(cause error, msg string) error {
 		cause: cause,
 		base: &base{
 			msg: msg,
-			st:  callers(),
+			pcs: pcs(),
 		},
 	}
 }
@@ -42,7 +42,7 @@ func Wrapf(cause error, format string, a ...interface{}) error {
 		cause: cause,
 		base: &base{
 			msg: fmt.Sprintf(format, a...),
-			st:  callers(),
+			pcs: pcs(),
 		},
 	}
 }
