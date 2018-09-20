@@ -16,7 +16,7 @@ func TestUnite(t *testing.T) {
 		err1 error
 		err2 error
 		msg  string
-		note string
+		memo string
 	}{
 		{nil, nil, "", "both nil"},
 		{err1, nil, "error1", "nil err2"},
@@ -25,7 +25,7 @@ func TestUnite(t *testing.T) {
 		{errz.Unite(err1, err2), err3, "contains 3 errors...\n1) error1\n2) error2\n3) error3\n", "nested"},
 	}
 	for _, d := range data {
-		t.Run(d.note, func(t *testing.T) {
+		t.Run(d.memo, func(t *testing.T) {
 			err := errz.Unite(d.err1, d.err2)
 			if d.err1 == nil && d.err2 == nil {
 				if err != nil {
@@ -51,7 +51,7 @@ func TestErrs(t *testing.T) {
 		err1 error
 		err2 error
 		errs []error
-		note string
+		memo string
 	}{
 		{nil, nil, nil, "both nil"},
 		{err1, nil, []error{err1}, "nil err2"},
@@ -60,7 +60,7 @@ func TestErrs(t *testing.T) {
 		{errz.Unite(err1, err2), err3, []error{err1, err2, err3}, "nested"},
 	}
 	for _, d := range data {
-		t.Run(d.note, func(t *testing.T) {
+		t.Run(d.memo, func(t *testing.T) {
 			err := errz.Unite(d.err1, d.err2)
 			if d.err1 == nil && d.err2 == nil {
 				if errz.Errs(err) != nil {

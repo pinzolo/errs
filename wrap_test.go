@@ -50,7 +50,7 @@ func TestCause(t *testing.T) {
 	data := []struct {
 		err  error
 		want error
-		note string
+		memo string
 	}{
 		{nil, nil, "nil"},
 		{orig, orig, "raw error"},
@@ -59,7 +59,7 @@ func TestCause(t *testing.T) {
 	}
 
 	for _, d := range data {
-		t.Run(d.note, func(t *testing.T) {
+		t.Run(d.memo, func(t *testing.T) {
 			err := errz.Cause(d.err)
 			if err != d.want {
 				t.Errorf("cause error: want %v, got %v", d.want, err)
@@ -73,7 +73,7 @@ func TestIsWrapped(t *testing.T) {
 	data := []struct {
 		err  error
 		want bool
-		note string
+		memo string
 	}{
 		{nil, false, "nil"},
 		{orig, false, "raw error"},
@@ -82,7 +82,7 @@ func TestIsWrapped(t *testing.T) {
 	}
 
 	for _, d := range data {
-		t.Run(d.note, func(t *testing.T) {
+		t.Run(d.memo, func(t *testing.T) {
 			if errz.IsWrapped(d.err) != d.want {
 				if d.want {
 					t.Error("IsWrapped should return true if error is wrapped")

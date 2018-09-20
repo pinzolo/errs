@@ -12,7 +12,7 @@ func TestWithCode(t *testing.T) {
 		err  error
 		code string
 		msg  string
-		note string
+		memo string
 	}{
 		{errors.New("error1"), "E01", "[E01] error1", "valid"},
 		{nil, "E02", "", "nil error"},
@@ -20,7 +20,7 @@ func TestWithCode(t *testing.T) {
 	}
 
 	for _, d := range data {
-		t.Run(d.note, func(t *testing.T) {
+		t.Run(d.memo, func(t *testing.T) {
 			err := errz.WithCode(d.err, d.code)
 			if d.err == nil {
 				if err != nil {

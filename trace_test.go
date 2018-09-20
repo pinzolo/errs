@@ -13,7 +13,7 @@ func TestTrace(t *testing.T) {
 		fn   func() error
 		name string
 		line int
-		note string
+		memo string
 	}{
 		{
 			func() error {
@@ -50,7 +50,7 @@ func TestTrace(t *testing.T) {
 	}
 
 	for _, fn := range fns {
-		t.Run(fn.note, func(t *testing.T) {
+		t.Run(fn.memo, func(t *testing.T) {
 			err := f(4, fn.fn)
 			st := errz.Trace(err)
 			data := []struct {
@@ -96,14 +96,14 @@ func TestMoreTrace(t *testing.T) {
 	data := []struct {
 		depth int
 		more  bool
-		note  string
+		memo  string
 	}{
 		{8, true, "less"},
 		{9, false, "just"},
 		{10, false, "more"},
 	}
 	for _, d := range data {
-		t.Run(d.note, func(t *testing.T) {
+		t.Run(d.memo, func(t *testing.T) {
 			defer func() func() {
 				max := errz.MaxDepth
 				errz.MaxDepth = d.depth
