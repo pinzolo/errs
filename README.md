@@ -19,7 +19,8 @@ Utitlity package for error. ([pkg/errors](https://github.com/pkg/errors) + alpha
 ## plus alpha
 
 * Annotating with custom error code
-* multi errors to single error
+* Uniting multi errors to single error
+* Constantizing error
 
 ### Go version
 
