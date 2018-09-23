@@ -16,3 +16,12 @@ func (c Const) Error() string {
 func (c Const) Errorf(a ...interface{}) string {
 	return fmt.Sprintf(string(c), a...)
 }
+
+// WithTrace returns new error with stack trace based Const.
+func (c Const) WithTrace() error {
+	return &box{
+		msg:   c.Error(),
+		trace: newTrace(defaultSkip),
+		cause: newCause(c, defaultSkip),
+	}
+}
