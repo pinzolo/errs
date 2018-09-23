@@ -43,3 +43,19 @@ func TestWithCode(t *testing.T) {
 		})
 	}
 }
+
+func TestWithCode_NotEraseCauseError(t *testing.T) {
+	cause := errors.New("error")
+	wrapped := errz.Wrap(cause, "wrapped")
+	err := errz.WithCode(wrapped, "E01")
+
+	if errz.Code(err) != "E01" {
+		t.Errorf("code: want %s, but %s", "E01", errz.Code(err))
+	}
+	if errz.Cause(err) == nil {
+		t.Error("WithCode should not erase cause error")
+	}
+	if errz.Cause(err) != cause {
+		t.Errorf("WithCode should not overwrite cause error: got %v", errz.Cause(err))
+	}
+}

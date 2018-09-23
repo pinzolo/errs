@@ -47,6 +47,17 @@ func TestTrace(t *testing.T) {
 			44,
 			"errz.Wrapf",
 		},
+		{
+			func() error {
+				err := errz.New("original")
+				err = errz.Wrap(err, "wrap1")
+				err = errz.WithCode(err, "E01")
+				return errz.Wrapf(err, "wrap%d", 2)
+			},
+			"func5",
+			55,
+			"New -> Wrap -> WithCode -> Wrapf",
+		},
 	}
 
 	for _, fn := range fns {
@@ -80,13 +91,13 @@ func TestTrace(t *testing.T) {
 	}
 }
 
-func TestTraceWithNil(t *testing.T) {
+func TestTrace_WithNil(t *testing.T) {
 	if errz.Trace(nil) != nil {
 		t.Errorf("Trace should return nil when given nil")
 	}
 }
 
-func TestTraceWithRawError(t *testing.T) {
+func TestTrace_WithRawError(t *testing.T) {
 	if errz.Trace(errors.New("raw error")) != nil {
 		t.Errorf("Trace should return nil when given raw error")
 	}
@@ -117,6 +128,108 @@ func TestMoreTrace(t *testing.T) {
 			st := errz.Trace(err)
 			if st.More != d.more {
 				t.Errorf("more: want %v, got %v", d.more, st.More)
+			}
+		})
+	}
+}
+
+func TestCauseTrace(t *testing.T) {
+	err := f(4, func() error {
+		return errz.New("original")
+	})
+	err = f(2, func() error {
+		return errz.Wrap(err, "wrap")
+	})
+
+	data := []struct {
+		file string
+		line int
+		fn   string
+	}{
+		{"trace_test.go", 141, "TestCauseTrace.func2"},
+		{"errz_test.go", 22, "f2"},
+		{"errz_test.go", 17, "f1"},
+		{"errz_test.go", 10, "f"},
+	}
+	st := errz.Trace(err)
+	for i, d := range data {
+		c := st.Callers[i]
+		if !strings.HasSuffix(c.File, d.file) {
+			t.Errorf("file: want %s, got %s", d.file, c.File)
+		}
+		if d.line != c.Line {
+			t.Errorf("line: want %d, got %d", d.line, c.Line)
+		}
+		if c.Func != d.fn {
+			t.Errorf("func: want %s, got %s", d.fn, c.Func)
+		}
+	}
+
+	data = []struct {
+		file string
+		line int
+		fn   string
+	}{
+		{"trace_test.go", 138, "TestCauseTrace.func1"},
+		{"errz_test.go", 36, "f4"},
+		{"errz_test.go", 31, "f3"},
+		{"errz_test.go", 24, "f2"},
+		{"errz_test.go", 17, "f1"},
+		{"errz_test.go", 10, "f"},
+	}
+	st = errz.CauseTrace(err)
+	for i, d := range data {
+		c := st.Callers[i]
+		if !strings.HasSuffix(c.File, d.file) {
+			t.Errorf("file: want %s, got %s", d.file, c.File)
+		}
+		if d.line != c.Line {
+			t.Errorf("line: want %d, got %d", d.line, c.Line)
+		}
+		if c.Func != d.fn {
+			t.Errorf("func: want %s, got %s", d.fn, c.Func)
+		}
+	}
+}
+
+func TestCauseTrace_NilPattern(t *testing.T) {
+	data := []struct {
+		err  error
+		memo string
+	}{
+		{nil, "nil"},
+		{errors.New("raw"), "raw error"},
+	}
+	for _, d := range data {
+		t.Run(d.memo, func(t *testing.T) {
+			if errz.CauseTrace(d.err) != nil {
+				t.Errorf("CauseTrace should return nil when given error is %s", d.memo)
+			}
+		})
+	}
+}
+
+func TestHasTrace(t *testing.T) {
+	orig := errors.New("original")
+	data := []struct {
+		err  error
+		want bool
+		memo string
+	}{
+		{nil, false, "nil"},
+		{orig, false, "raw error"},
+		{errz.Wrap(orig, "wrap"), true, "wrap"},
+		{errz.Wrap(errz.Wrap(errz.Wrap(orig, "wrap1"), "wrap2"), "wrap3"), true, "nested wrap"},
+	}
+
+	for _, d := range data {
+		t.Run(d.memo, func(t *testing.T) {
+			if errz.HasTrace(d.err) != d.want {
+				if d.want {
+					t.Error("HasTrace should return true if error is wrapped")
+				} else {
+					t.Error("HasTrace should return false if error is not wrapped")
+				}
 			}
 		})
 	}

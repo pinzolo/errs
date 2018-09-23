@@ -36,6 +36,34 @@ func Trace(err error) *StackTrace {
 	return nil
 }
 
+// CauseTrace returns stack trace of original error.
+// If given error is not wrapped, CauseTrace returns nil.
+// If given error is nil, CauseTrace returns nil.
+func CauseTrace(err error) *StackTrace {
+	if err == nil {
+		return nil
+	}
+
+	if b, ok := err.(*box); ok {
+		return b.CauseTrace()
+	}
+
+	return nil
+}
+
+// HasTrace returns true if given error has stack trace.
+// If given error is nil, HasTrace returns false,
+func HasTrace(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	if b, ok := err.(*box); ok {
+		return b.trace.pcs != nil
+	}
+	return false
+}
+
 func callers(pcs []uintptr) []*Caller {
 	cs := make([]*Caller, len(pcs))
 	for i, pc := range pcs {

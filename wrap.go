@@ -2,53 +2,54 @@ package errz
 
 import "fmt"
 
-type withCause struct {
-	*base
-	cause error
-}
-
-func (wc *withCause) Cause() error {
-	return wc.cause
-}
-
-func (wc *withCause) Error() string {
-	return wc.msg + ": " + wc.cause.Error()
-}
-
 // Wrap returns new error annotated given message.
 // Returned error has stack trace and original error.
 // If cause error is nil, Wrap returns nil.
-func Wrap(cause error, msg string) error {
-	if cause == nil {
+func Wrap(err error, message string) error {
+	if err == nil {
 		return nil
 	}
-	return &withCause{
-		cause: cause,
-		base: &base{
-			msg: msg,
-			pcs: pcs(),
-		},
+	msg := newMsg(err, message)
+
+	if b, ok := err.(*box); ok {
+		b.reset(defaultSkip)
+		b.msg = msg
+		return b
+	}
+	return &box{
+		trace: newTrace(defaultSkip),
+		cause: newCause(err, defaultSkip),
+		msg:   msg,
 	}
 }
 
 // Wrapf returns new error annotated message that is build given format and args.
 // Returned error has stack trace and original error.
 // If cause error is nil, Wrap returns nil.
-func Wrapf(cause error, format string, a ...interface{}) error {
-	if cause == nil {
+func Wrapf(err error, format string, a ...interface{}) error {
+	if err == nil {
 		return nil
 	}
-	return &withCause{
-		cause: cause,
-		base: &base{
-			msg: fmt.Sprintf(format, a...),
-			pcs: pcs(),
-		},
+	msg := newMsg(err, fmt.Sprintf(format, a...))
+
+	if b, ok := err.(*box); ok {
+		b.reset(defaultSkip)
+		b.msg = msg
+		return b
+	}
+	return &box{
+		trace: newTrace(defaultSkip),
+		cause: newCause(err, defaultSkip),
+		msg:   msg,
 	}
 }
 
-type causer interface {
-	Cause() error
+func newMsg(err error, message string) string {
+	msg := err.Error()
+	if message != "" {
+		msg = message + ": " + msg
+	}
+	return msg
 }
 
 // Cause returns original error that is wrapped by errz.Wrap or errz.Wrapf recursively.
@@ -59,18 +60,8 @@ func Cause(err error) error {
 		return nil
 	}
 
-	if c, ok := err.(causer); ok {
-		return Cause(c.Cause())
+	if b, ok := err.(*box); ok {
+		return b.Cause()
 	}
 	return err
-}
-
-// IsWrapped returns true if given error is already wrapped.
-// If given error is nil, IsWrapped returns false,
-func IsWrapped(err error) bool {
-	if err == nil {
-		return false
-	}
-	_, ok := err.(causer)
-	return ok
 }
