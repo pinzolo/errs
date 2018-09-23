@@ -1,4 +1,4 @@
-# errs
+# errz
 
 [![Build Status](https://travis-ci.org/pinzolo/errz.png)](http://travis-ci.org/pinzolo/errz)
 [![Coverage Status](https://coveralls.io/repos/github/pinzolo/errz/badge.svg?branch=master)](https://coveralls.io/github/pinzolo/errz?branch=master)
