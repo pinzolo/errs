@@ -10,16 +10,11 @@ func WithCode(err error, code string) error {
 	if code == "" {
 		return err
 	}
-	if b, ok := err.(*box); ok {
-		b.reset(defaultSkip)
-		b.code = code
-		return b
-	}
 
-	return &box{
-		code:  code,
-		msg:   err.Error(),
-		cause: newCause(err, defaultSkip),
+	return &wrapper{
+		err:  err,
+		code: code,
+		pcs:  pcs(defaultSkip),
 	}
 }
 
@@ -31,8 +26,8 @@ func Code(err error) string {
 		return ""
 	}
 
-	if b, ok := err.(*box); ok {
-		return b.Code()
+	if w, ok := err.(*wrapper); ok {
+		return w.code
 	}
 	return ""
 }

@@ -208,29 +208,3 @@ func TestCauseTrace_NilPattern(t *testing.T) {
 		})
 	}
 }
-
-func TestHasTrace(t *testing.T) {
-	orig := errors.New("original")
-	data := []struct {
-		err  error
-		want bool
-		memo string
-	}{
-		{nil, false, "nil"},
-		{orig, false, "raw error"},
-		{errz.Wrap(orig, "wrap"), true, "wrap"},
-		{errz.Wrap(errz.Wrap(errz.Wrap(orig, "wrap1"), "wrap2"), "wrap3"), true, "nested wrap"},
-	}
-
-	for _, d := range data {
-		t.Run(d.memo, func(t *testing.T) {
-			if errz.HasTrace(d.err) != d.want {
-				if d.want {
-					t.Error("HasTrace should return true if error is wrapped")
-				} else {
-					t.Error("HasTrace should return false if error is not wrapped")
-				}
-			}
-		})
-	}
-}

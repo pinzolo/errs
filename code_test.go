@@ -55,7 +55,9 @@ func TestWithCode_NotEraseCauseError(t *testing.T) {
 	if errz.Cause(err) == nil {
 		t.Error("WithCode should not erase cause error")
 	}
-	if errz.Cause(err) != cause {
-		t.Errorf("WithCode should not overwrite cause error: got %v", errz.Cause(err))
+	if e := errz.Cause(err); e != cause {
+		t.Log(e)
+		t.Log(cause)
+		t.Errorf("WithCode should not overwrite cause error: got %v", e)
 	}
 }

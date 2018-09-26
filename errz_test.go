@@ -68,3 +68,40 @@ func TestErrorf(t *testing.T) {
 		t.Errorf("should has stack trace")
 	}
 }
+
+type Hoge struct {
+	raise func() error
+}
+
+func (h Hoge) throw() error {
+	return f(4, h.raise)
+}
+
+//
+//func TestFormat(t *testing.T) {
+//	err1 := Hoge{
+//		raise: func() error {
+//			return errors.Wrap(f(3, func() error {
+//				return errors.Wrap(f(2, func() error {
+//					//return errors.New("error")
+//					return fmt.Errorf("error %s", "test")
+//				}), "wrap1")
+//			}), "wrap2")
+//		},
+//	}.throw()
+//	err2 := Hoge{
+//		raise: func() error {
+//			return errz.Wrap(f(3, func() error {
+//				return errz.Wrap(f(2, func() error {
+//					//return errz.New("error")
+//					return fmt.Errorf("error %s", "test")
+//				}), "wrap1")
+//			}), "wrap2")
+//		},
+//	}.throw()
+//	fmt.Println("----- err1")
+//	fmt.Printf("%v\n", err1)
+//	fmt.Println("----- err2")
+//	fmt.Printf("%+c\n", err2)
+//	t.Errorf("%+v", err1)
+//}
