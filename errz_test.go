@@ -93,8 +93,8 @@ func (h Hoge) throw() error {
 //		raise: func() error {
 //			return errz.Wrap(f(3, func() error {
 //				return errz.Wrap(f(2, func() error {
-//					//return errz.New("error")
-//					return fmt.Errorf("error %s", "test")
+//					return errz.New("error")
+//					//return fmt.Errorf("error %s", "test")
 //				}), "wrap1")
 //			}), "wrap2")
 //		},
@@ -102,6 +102,6 @@ func (h Hoge) throw() error {
 //	fmt.Println("----- err1")
 //	fmt.Printf("%v\n", err1)
 //	fmt.Println("----- err2")
-//	fmt.Printf("%+c\n", err2)
+//	fmt.Printf("%+v", err2)
 //	t.Errorf("%+v", err1)
 //}

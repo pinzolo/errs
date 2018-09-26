@@ -60,8 +60,7 @@ func (c *Caller) Format(s fmt.State, verb rune) {
 		io.WriteString(s, strconv.Itoa(c.Line))
 	case 'v':
 		c.Format(s, 's')
-		io.WriteString(s, ":")
-		c.Format(s, 'd')
+		io.WriteString(s, ":"+strconv.Itoa(c.Line))
 	}
 }
 
@@ -80,6 +79,7 @@ func (st *StackTrace) Format(s fmt.State, verb rune) {
 		for _, c := range st.Callers {
 			fmt.Fprintf(s, format, c)
 		}
+		io.WriteString(s, "\n")
 	case 'v':
 		for _, c := range st.Callers {
 			fmt.Fprintf(s, format, c)
@@ -87,10 +87,12 @@ func (st *StackTrace) Format(s fmt.State, verb rune) {
 		if s.Flag('+') && st.More {
 			io.WriteString(s, "\n\tand more...")
 		}
+		io.WriteString(s, "\n")
 	case 'c':
 		for _, c := range st.Callers {
 			fmt.Fprintf(s, format, c)
 		}
+		io.WriteString(s, "\n")
 	}
 }
 

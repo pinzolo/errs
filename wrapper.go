@@ -70,28 +70,31 @@ func (w *wrapper) Format(s fmt.State, verb rune) {
 }
 
 func (w *wrapper) formatPlusS(s io.Writer) {
-	if w.err != nil {
-		fmt.Fprintf(s, "%+s\n", w.err)
-	}
-	io.WriteString(s, w.message())
+	io.WriteString(s, w.Error())
 	fmt.Fprintf(s, "%+s", w.Trace())
-
+	if w.err != nil {
+		if iw, ok := w.err.(*wrapper); ok {
+			fmt.Fprintf(s, "%+s", iw)
+		}
+	}
 }
 
 func (w *wrapper) formatPlusV(s io.Writer) {
-	if w.err != nil {
-		fmt.Fprintf(s, "%+v\n", w.err)
-	}
-	io.WriteString(s, w.message())
+	io.WriteString(s, w.Error())
 	fmt.Fprintf(s, "%+v", w.Trace())
+	if w.err != nil {
+		if iw, ok := w.err.(*wrapper); ok {
+			fmt.Fprintf(s, "%+v", iw)
+		}
+	}
 }
 
 func (w *wrapper) formatPlusC(s io.Writer) {
 	if w.err != nil {
 		if iw, ok := w.err.(*wrapper); ok {
-			fmt.Fprintf(s, "%+c\n", iw)
+			fmt.Fprintf(s, "%+c", iw)
 		} else {
-			fmt.Fprintf(s, "%+v\n", w.err)
+			fmt.Fprintf(s, "%+v", w.err)
 		}
 	}
 	io.WriteString(s, w.message())
