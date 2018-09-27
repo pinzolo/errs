@@ -13,23 +13,19 @@ const defaultSkip = 3
 
 // New error that annotated given message.
 // Returned error has stack trace.
-func New(msg string) error {
-	err := errors.New(msg)
-	return &box{
-		msg:   msg,
-		trace: newTrace(defaultSkip),
-		cause: newCause(err, defaultSkip),
+func New(message string) error {
+	return &wrapper{
+		err: errors.New(message),
+		pcs: pcs(defaultSkip),
 	}
 }
 
 // Errorf returns new error annotated message that is build given format and args.
 // Returned error has stack trace.
 func Errorf(format string, a ...interface{}) error {
-	err := fmt.Errorf(format, a...)
-	return &box{
-		msg:   err.Error(),
-		trace: newTrace(defaultSkip),
-		cause: newCause(err, defaultSkip),
+	return &wrapper{
+		err: fmt.Errorf(format, a...),
+		pcs: pcs(defaultSkip),
 	}
 }
 

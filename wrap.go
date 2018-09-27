@@ -9,17 +9,11 @@ func Wrap(err error, message string) error {
 	if err == nil {
 		return nil
 	}
-	msg := newMsg(err, message)
 
-	if b, ok := err.(*box); ok {
-		b.reset(defaultSkip)
-		b.msg = msg
-		return b
-	}
-	return &box{
-		trace: newTrace(defaultSkip),
-		cause: newCause(err, defaultSkip),
-		msg:   msg,
+	return &wrapper{
+		err: err,
+		msg: message,
+		pcs: pcs(defaultSkip),
 	}
 }
 
@@ -30,26 +24,12 @@ func Wrapf(err error, format string, a ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	msg := newMsg(err, fmt.Sprintf(format, a...))
 
-	if b, ok := err.(*box); ok {
-		b.reset(defaultSkip)
-		b.msg = msg
-		return b
+	return &wrapper{
+		err: err,
+		msg: fmt.Sprintf(format, a...),
+		pcs: pcs(defaultSkip),
 	}
-	return &box{
-		trace: newTrace(defaultSkip),
-		cause: newCause(err, defaultSkip),
-		msg:   msg,
-	}
-}
-
-func newMsg(err error, message string) string {
-	msg := err.Error()
-	if message != "" {
-		msg = message + ": " + msg
-	}
-	return msg
 }
 
 // Cause returns original error that is wrapped by errz.Wrap or errz.Wrapf recursively.
@@ -60,8 +40,11 @@ func Cause(err error) error {
 		return nil
 	}
 
-	if b, ok := err.(*box); ok {
-		return b.Cause()
+	if w, ok := err.(*wrapper); ok {
+		if w.err == nil {
+			return w
+		}
+		return Cause(w.err)
 	}
 	return err
 }

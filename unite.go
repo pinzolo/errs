@@ -9,12 +9,11 @@ type withErrors struct {
 	errs []error
 }
 
+// nolint: gas
 func (we *withErrors) Error() string {
 	buf := &bytes.Buffer{}
-	// nolint: gas
 	fmt.Fprintf(buf, "contains %d errors...\n", len(we.errs))
 	for i, err := range we.errs {
-		// nolint: gas
 		fmt.Fprintf(buf, "%d) %s\n", i+1, err.Error())
 	}
 	return buf.String()

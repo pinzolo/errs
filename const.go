@@ -19,9 +19,8 @@ func (c Const) Errorf(a ...interface{}) string {
 
 // WithTrace returns new error with stack trace based Const.
 func (c Const) WithTrace() error {
-	return &box{
-		msg:   c.Error(),
-		trace: newTrace(defaultSkip),
-		cause: newCause(c, defaultSkip),
+	return &wrapper{
+		err: c,
+		pcs: pcs(defaultSkip),
 	}
 }
