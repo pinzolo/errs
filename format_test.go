@@ -107,13 +107,13 @@ error
 	}
 }
 
-func TestFormatC(t *testing.T) {
+func TestFormatO(t *testing.T) {
 	err1 := errz.NewWrapper(errors.New("error"), "", "", newStack(callers1(), false))
 	err2 := errz.NewWrapper(err1, "", "wrap1", newStack(callers2(), false))
 	err3 := errz.NewWrapper(err2, "", "wrap2", newStack(callers3(), false))
 
 	buf := &bytes.Buffer{}
-	fmt.Fprintf(buf, "%c", err3)
+	fmt.Fprintf(buf, "%o", err3)
 	want := "wrap2: wrap1: error"
 
 	if buf.String() != want {
@@ -123,13 +123,13 @@ func TestFormatC(t *testing.T) {
 	}
 }
 
-func TestFormatPlusC(t *testing.T) {
+func TestFormatPlusO(t *testing.T) {
 	err1 := errz.NewWrapper(errors.New("error"), "", "", newStack(callers1(), false))
 	err2 := errz.NewWrapper(err1, "", "wrap1", newStack(callers2(), false))
 	err3 := errz.NewWrapper(err2, "", "wrap2", newStack(callers3(), false))
 
 	buf := &bytes.Buffer{}
-	fmt.Fprintf(buf, "%+c", err3)
+	fmt.Fprintf(buf, "%+o", err3)
 	want := `error
 github.com/pinzolo/errz_test.TestFormat.func2.1.1
 	/src/github.com/pinzolo/errz/errz_test.go:97

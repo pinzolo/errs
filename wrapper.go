@@ -60,9 +60,9 @@ func (w *wrapper) Format(s fmt.State, verb rune) {
 		} else {
 			io.WriteString(s, w.Error())
 		}
-	case 'c':
+	case 'o':
 		if s.Flag('+') {
-			w.formatPlusC(s)
+			w.formatPlusO(s)
 		} else {
 			io.WriteString(s, w.Error())
 		}
@@ -89,14 +89,14 @@ func (w *wrapper) formatPlusV(s io.Writer) {
 	}
 }
 
-func (w *wrapper) formatPlusC(s io.Writer) {
+func (w *wrapper) formatPlusO(s io.Writer) {
 	if w.err != nil {
 		if iw, ok := w.err.(*wrapper); ok {
-			fmt.Fprintf(s, "%+c", iw)
+			fmt.Fprintf(s, "%+o", iw)
 		} else {
 			fmt.Fprintf(s, "%+v", w.err)
 		}
 	}
 	io.WriteString(s, w.message())
-	fmt.Fprintf(s, "%+c", w.Trace())
+	fmt.Fprintf(s, "%+o", w.Trace())
 }

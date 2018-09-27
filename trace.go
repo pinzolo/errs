@@ -29,10 +29,10 @@ func (c *Caller) FullFunc() string {
 //
 //   %s    source file
 //   %v    equivalent to %s:%d
-//   %c    compatible with pkg/errors(%v)
+//   %o    compatible with pkg/errors(%v)
 //   %+s   function name and source file separated by '\t'
 //   %+v   equivalent to %+s:%d
-//   %+c   compatible with pkg/errors(%+v)
+//   %+o   compatible with pkg/errors(%+v)
 // nolint: gas
 func (c *Caller) Format(s fmt.State, verb rune) {
 	switch verb {
@@ -46,7 +46,7 @@ func (c *Caller) Format(s fmt.State, verb rune) {
 				io.WriteString(s, c.File)
 			}
 		}
-	case 'c':
+	case 'o':
 		if c.Func == "" {
 			io.WriteString(s, "unknown")
 		} else {
@@ -88,7 +88,7 @@ func (st *StackTrace) Format(s fmt.State, verb rune) {
 			io.WriteString(s, "\n\tand more...")
 		}
 		io.WriteString(s, "\n")
-	case 'c':
+	case 'o':
 		for _, c := range st.Callers {
 			fmt.Fprintf(s, format, c)
 		}
@@ -167,7 +167,7 @@ func separateFuncName(path string) (pkg, name string) {
 
 func callerFormat(s fmt.State, verb rune) string {
 	prefix := "\n\t"
-	if verb == 'c' {
+	if verb == 'o' {
 		prefix = "\n"
 	}
 	if s.Flag('+') {
